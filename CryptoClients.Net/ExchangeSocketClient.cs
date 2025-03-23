@@ -60,6 +60,8 @@ using Kucoin.Net.Objects.Options;
 using Mexc.Net.Clients;
 using Mexc.Net.Interfaces.Clients;
 using Mexc.Net.Objects.Options;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OKX.Net.Clients;
 using OKX.Net.Interfaces.Clients;
 using OKX.Net.Objects;
@@ -252,6 +254,36 @@ namespace CryptoClients.Net
             Action<MexcSocketOptions>? mexcSocketOptions = null,
             Action<OKXSocketOptions>? okxSocketOptions = null,
             Action<WhiteBitSocketOptions>? whiteBitSocketOptions = null,
+            Action<XTSocketOptions>? xtSocketOptions = null) : this(null, globalOptions, binanceSocketOptions, bingxSocketOptions, bitfinexSocketOptions, bitgetSocketOptions, bitMartSocketOptions, bitMEXSocketOptions, bybitSocketOptions, coinExSocketOptions, coinbaseSocketOptions, cryptoComSocketOptions, deepCoinSocketOptions, gateIoSocketOptions, htxSocketOptions, hyperLiquidSocketOptions, krakenSocketOptions, kucoinSocketOptions, mexcSocketOptions, okxSocketOptions, whiteBitSocketOptions, xtSocketOptions)
+        {
+            
+        }
+
+        /// <summary>
+        /// Create a new ExchangeSocketClient instance
+        /// </summary>
+        public ExchangeSocketClient(
+            ILoggerFactory? loggerFactory,
+            Action<GlobalExchangeOptions>? globalOptions = null,
+            Action<BinanceSocketOptions>? binanceSocketOptions = null,
+            Action<BingXSocketOptions>? bingxSocketOptions = null,
+            Action<BitfinexSocketOptions>? bitfinexSocketOptions = null,
+            Action<BitgetSocketOptions>? bitgetSocketOptions = null,
+            Action<BitMartSocketOptions>? bitMartSocketOptions = null,
+            Action<BitMEXSocketOptions>? bitMEXSocketOptions = null,
+            Action<BybitSocketOptions>? bybitSocketOptions = null,
+            Action<CoinExSocketOptions>? coinExSocketOptions = null,
+            Action<CoinbaseSocketOptions>? coinbaseSocketOptions = null,
+            Action<CryptoComSocketOptions>? cryptoComSocketOptions = null,
+            Action<DeepCoinSocketOptions>? deepCoinSocketOptions = null,
+            Action<GateIoSocketOptions>? gateIoSocketOptions = null,
+            Action<HTXSocketOptions>? htxSocketOptions = null,
+            Action<HyperLiquidSocketOptions>? hyperLiquidSocketOptions = null,
+            Action<KrakenSocketOptions>? krakenSocketOptions = null,
+            Action<KucoinSocketOptions>? kucoinSocketOptions = null,
+            Action<MexcSocketOptions>? mexcSocketOptions = null,
+            Action<OKXSocketOptions>? okxSocketOptions = null,
+            Action<WhiteBitSocketOptions>? whiteBitSocketOptions = null,
             Action<XTSocketOptions>? xtSocketOptions = null)
         {
             Action<TOptions> SetGlobalSocketOptions<TOptions, TCredentials>(GlobalExchangeOptions globalOptions, Action<TOptions>? exchangeDelegate, TCredentials? credentials) where TOptions : SocketExchangeOptions where TCredentials : ApiCredentials
@@ -300,26 +332,26 @@ namespace CryptoClients.Net
                 xtSocketOptions = SetGlobalSocketOptions(global, xtSocketOptions, credentials?.XT);
             }
 
-            Binance = new BinanceSocketClient(binanceSocketOptions ?? new Action<BinanceSocketOptions>((x) => { }));
-            BingX = new BingXSocketClient(bingxSocketOptions ?? new Action<BingXSocketOptions>((x) => { }));
-            Bitfinex = new BitfinexSocketClient(bitfinexSocketOptions ?? new Action<BitfinexSocketOptions>((x) => { }));
-            Bitget = new BitgetSocketClient(bitgetSocketOptions ?? new Action<BitgetSocketOptions>((x) => { }));
-            BitMart = new BitMartSocketClient(bitMartSocketOptions ?? new Action<BitMartSocketOptions>((x) => { }));
-            BitMEX = new BitMEXSocketClient(bitMEXSocketOptions ?? new Action<BitMEXSocketOptions>((x) => { }));
-            Bybit = new BybitSocketClient(bybitSocketOptions ?? new Action<BybitSocketOptions>((x) => { }));
-            Coinbase = new CoinbaseSocketClient(coinbaseSocketOptions ?? new Action<CoinbaseSocketOptions>((x) => { }));
-            CoinEx = new CoinExSocketClient(coinExSocketOptions ?? new Action<CoinExSocketOptions>((x) => { }));
-            HTX = new HTXSocketClient(htxSocketOptions ?? new Action<HTXSocketOptions>((x) => { }));
-            HyperLiquid = new HyperLiquidSocketClient(hyperLiquidSocketOptions ?? new Action<HyperLiquidSocketOptions>((x) => { }));
-            CryptoCom = new CryptoComSocketClient(cryptoComSocketOptions ?? new Action<CryptoComSocketOptions>((x) => { }));
-            DeepCoin = new DeepCoinSocketClient(deepCoinSocketOptions ?? new Action<DeepCoinSocketOptions>((x) => { }));
-            GateIo = new GateIoSocketClient(gateIoSocketOptions ?? new Action<GateIoSocketOptions>((x) => { }));
-            Kraken = new KrakenSocketClient(krakenSocketOptions ?? new Action<KrakenSocketOptions>((x) => { }));
-            Kucoin = new KucoinSocketClient(kucoinSocketOptions ?? new Action<KucoinSocketOptions>((x) => { }));
-            Mexc = new MexcSocketClient(mexcSocketOptions ?? new Action<MexcSocketOptions>((x) => { }));
-            OKX = new OKXSocketClient(okxSocketOptions ?? new Action<OKXSocketOptions>((x) => { }));
-            WhiteBit = new WhiteBitSocketClient(whiteBitSocketOptions ?? new Action<WhiteBitSocketOptions>((x) => { }));
-            XT = new XTSocketClient(xtSocketOptions ?? new Action<XTSocketOptions>((x) => { }));
+            Binance = new BinanceSocketClient(Options.Create(ApplyOptionsDelegate(binanceSocketOptions ?? new Action<BinanceSocketOptions>((x) => { }))), loggerFactory);
+            BingX = new BingXSocketClient(Options.Create(ApplyOptionsDelegate(bingxSocketOptions ?? new Action<BingXSocketOptions>((x) => { }))), loggerFactory);
+            Bitfinex = new BitfinexSocketClient(Options.Create(ApplyOptionsDelegate(bitfinexSocketOptions ?? new Action<BitfinexSocketOptions>((x) => { }))), loggerFactory);
+            Bitget = new BitgetSocketClient(Options.Create(ApplyOptionsDelegate(bitgetSocketOptions ?? new Action<BitgetSocketOptions>((x) => { }))), loggerFactory);
+            BitMart = new BitMartSocketClient(Options.Create(ApplyOptionsDelegate(bitMartSocketOptions ?? new Action<BitMartSocketOptions>((x) => { }))), loggerFactory);
+            BitMEX = new BitMEXSocketClient(Options.Create(ApplyOptionsDelegate(bitMEXSocketOptions ?? new Action<BitMEXSocketOptions>((x) => { }))), loggerFactory);
+            Bybit = new BybitSocketClient(Options.Create(ApplyOptionsDelegate(bybitSocketOptions ?? new Action<BybitSocketOptions>((x) => { }))), loggerFactory);
+            Coinbase = new CoinbaseSocketClient(Options.Create(ApplyOptionsDelegate(coinbaseSocketOptions ?? new Action<CoinbaseSocketOptions>((x) => { }))), loggerFactory);
+            CoinEx = new CoinExSocketClient(Options.Create(ApplyOptionsDelegate(coinExSocketOptions ?? new Action<CoinExSocketOptions>((x) => { }))), loggerFactory);
+            HTX = new HTXSocketClient(Options.Create(ApplyOptionsDelegate(htxSocketOptions ?? new Action<HTXSocketOptions>((x) => { }))), loggerFactory);
+            HyperLiquid = new HyperLiquidSocketClient(Options.Create(ApplyOptionsDelegate(hyperLiquidSocketOptions ?? new Action<HyperLiquidSocketOptions>((x) => { }))), loggerFactory);
+            CryptoCom = new CryptoComSocketClient(Options.Create(ApplyOptionsDelegate(cryptoComSocketOptions ?? new Action<CryptoComSocketOptions>((x) => { }))), loggerFactory);
+            DeepCoin = new DeepCoinSocketClient(Options.Create(ApplyOptionsDelegate(deepCoinSocketOptions ?? new Action<DeepCoinSocketOptions>((x) => { }))), loggerFactory);
+            GateIo = new GateIoSocketClient(Options.Create(ApplyOptionsDelegate(gateIoSocketOptions ?? new Action<GateIoSocketOptions>((x) => { }))), loggerFactory);
+            Kraken = new KrakenSocketClient(Options.Create(ApplyOptionsDelegate(krakenSocketOptions ?? new Action<KrakenSocketOptions>((x) => { }))), loggerFactory);
+            Kucoin = new KucoinSocketClient(Options.Create(ApplyOptionsDelegate(kucoinSocketOptions ?? new Action<KucoinSocketOptions>((x) => { }))), loggerFactory);
+            Mexc = new MexcSocketClient(Options.Create(ApplyOptionsDelegate(mexcSocketOptions ?? new Action<MexcSocketOptions>((x) => { }))), loggerFactory);
+            OKX = new OKXSocketClient(Options.Create(ApplyOptionsDelegate(okxSocketOptions ?? new Action<OKXSocketOptions>((x) => { }))), loggerFactory);
+            WhiteBit = new WhiteBitSocketClient(Options.Create(ApplyOptionsDelegate(whiteBitSocketOptions ?? new Action<WhiteBitSocketOptions>((x) => { }))), loggerFactory);
+            XT = new XTSocketClient(Options.Create(ApplyOptionsDelegate(xtSocketOptions ?? new Action<XTSocketOptions>((x) => { }))), loggerFactory);
 
             InitSharedClients();
         }
@@ -371,6 +403,16 @@ namespace CryptoClients.Net
             XT = xt;
 
             InitSharedClients();
+        }
+
+        /// <summary>
+        /// Apply the options delegate to a new options instance
+        /// </summary>
+        private static T ApplyOptionsDelegate<T>(Action<T>? del) where T : new()
+        {
+            var opts = new T();
+            del?.Invoke(opts);
+            return opts;
         }
 
         private void InitSharedClients()

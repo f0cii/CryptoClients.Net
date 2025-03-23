@@ -34,6 +34,7 @@ using CryptoCom.Net.Clients;
 using CryptoCom.Net.Interfaces.Clients;
 using CryptoCom.Net.Objects.Options;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Clients;
 using CryptoExchange.Net.Interfaces.CommonClients;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Objects.Options;
@@ -61,13 +62,18 @@ using Kucoin.Net.Objects.Options;
 using Mexc.Net.Clients;
 using Mexc.Net.Interfaces.Clients;
 using Mexc.Net.Objects.Options;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Nethereum.Model;
 using OKX.Net.Clients;
 using OKX.Net.Interfaces.Clients;
 using OKX.Net.Objects;
 using OKX.Net.Objects.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WhiteBit.Net.Clients;
@@ -335,6 +341,35 @@ namespace CryptoClients.Net
             Action<MexcRestOptions>? mexcRestOptions = null,
             Action<OKXRestOptions>? okxRestOptions = null,
             Action<WhiteBitRestOptions>? whiteBitRestOptions = null,
+            Action<XTRestOptions>? xtRestOptions = null) : this(null, globalOptions, binanceRestOptions, bingxRestOptions, bitfinexRestOptions, bitgetRestOptions, bitMartRestOptions, bitMEXRestOptions, bybitRestOptions, coinbaseRestOptions, coinExRestOptions, cryptoComRestOptions, deepCoinRestOptions, gateIoRestOptions, htxRestOptions, hyperLiquidRestOptions, krakenRestOptions, kucoinRestOptions, mexcRestOptions, okxRestOptions, whiteBitRestOptions, xtRestOptions)
+        {
+        }
+
+        /// <summary>
+        /// Create a new ExchangeRestClient instance
+        /// </summary>
+        public ExchangeRestClient(
+            ILoggerFactory? loggerFactory,
+            Action<GlobalExchangeOptions>? globalOptions = null,
+            Action<BinanceRestOptions>? binanceRestOptions = null,
+            Action<BingXRestOptions>? bingxRestOptions = null,
+            Action<BitfinexRestOptions>? bitfinexRestOptions = null,
+            Action<BitgetRestOptions>? bitgetRestOptions = null,
+            Action<BitMartRestOptions>? bitMartRestOptions = null,
+            Action<BitMEXRestOptions>? bitMEXRestOptions = null,
+            Action<BybitRestOptions>? bybitRestOptions = null,
+            Action<CoinbaseRestOptions>? coinbaseRestOptions = null,
+            Action<CoinExRestOptions>? coinExRestOptions = null,
+            Action<CryptoComRestOptions>? cryptoComRestOptions = null,
+            Action<DeepCoinRestOptions>? deepCoinRestOptions = null,
+            Action<GateIoRestOptions>? gateIoRestOptions = null,
+            Action<HTXRestOptions>? htxRestOptions = null,
+            Action<HyperLiquidRestOptions>? hyperLiquidRestOptions = null,
+            Action<KrakenRestOptions>? krakenRestOptions = null,
+            Action<KucoinRestOptions>? kucoinRestOptions = null,
+            Action<MexcRestOptions>? mexcRestOptions = null,
+            Action<OKXRestOptions>? okxRestOptions = null,
+            Action<WhiteBitRestOptions>? whiteBitRestOptions = null,
             Action<XTRestOptions>? xtRestOptions = null)
         {
             Action<TOptions> SetGlobalRestOptions<TOptions, TCredentials>(GlobalExchangeOptions globalOptions, Action<TOptions>? exchangeDelegate, TCredentials? credentials) where TOptions : RestExchangeOptions where TCredentials : ApiCredentials
@@ -382,29 +417,39 @@ namespace CryptoClients.Net
                 xtRestOptions = SetGlobalRestOptions(global, xtRestOptions, credentials?.XT);
             }
 
-            Binance = new BinanceRestClient(binanceRestOptions);
-            BingX = new BingXRestClient(bingxRestOptions);
-            Bitfinex = new BitfinexRestClient(bitfinexRestOptions);
-            Bitget = new BitgetRestClient(bitgetRestOptions);
-            BitMart = new BitMartRestClient(bitMartRestOptions);
-            BitMEX = new BitMEXRestClient(bitMEXRestOptions);
-            Bybit = new BybitRestClient(bybitRestOptions);
-            Coinbase = new CoinbaseRestClient(coinbaseRestOptions);
-            CoinEx = new CoinExRestClient(coinExRestOptions);
-            CryptoCom = new CryptoComRestClient(cryptoComRestOptions);
-            DeepCoin = new DeepCoinRestClient(deepCoinRestOptions);
-            GateIo = new GateIoRestClient(gateIoRestOptions);
-            HTX = new HTXRestClient(htxRestOptions);
-            HyperLiquid = new HyperLiquidRestClient(hyperLiquidRestOptions);
-            Kraken = new KrakenRestClient(krakenRestOptions);
-            Kucoin = new KucoinRestClient(kucoinRestOptions);
-            Mexc = new MexcRestClient(mexcRestOptions);
-            OKX = new OKXRestClient(okxRestOptions);
-            WhiteBit = new WhiteBitRestClient(whiteBitRestOptions);
-            XT = new XTRestClient(xtRestOptions);
+            Binance = new BinanceRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(binanceRestOptions)));
+            BingX = new BingXRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bingxRestOptions)));
+            Bitfinex = new BitfinexRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bitfinexRestOptions)));
+            Bitget = new BitgetRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bitgetRestOptions)));
+            BitMart = new BitMartRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bitMartRestOptions)));
+            BitMEX = new BitMEXRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bitMEXRestOptions)));
+            Bybit = new BybitRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(bybitRestOptions)));
+            Coinbase = new CoinbaseRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(coinbaseRestOptions)));
+            CoinEx = new CoinExRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(coinExRestOptions)));
+            CryptoCom = new CryptoComRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(cryptoComRestOptions)));
+            DeepCoin = new DeepCoinRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(deepCoinRestOptions)));
+            GateIo = new GateIoRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(gateIoRestOptions)));
+            HTX = new HTXRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(htxRestOptions)));
+            HyperLiquid = new HyperLiquidRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(hyperLiquidRestOptions)));
+            Kraken = new KrakenRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(krakenRestOptions)));
+            Kucoin = new KucoinRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(kucoinRestOptions)));
+            Mexc = new MexcRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(mexcRestOptions)));
+            OKX = new OKXRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(okxRestOptions)));
+            WhiteBit = new WhiteBitRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(whiteBitRestOptions)));
+            XT = new XTRestClient(null, loggerFactory, Options.Create(ApplyOptionsDelegate(xtRestOptions)));
 
             InitSpotClients();
             InitSharedClients();
+        }
+
+        /// <summary>
+        /// Apply the options delegate to a new options instance
+        /// </summary>
+        private static T ApplyOptionsDelegate<T>(Action<T>? del) where T : new()
+        {
+            var opts = new T();
+            del?.Invoke(opts);
+            return opts;
         }
 
         private void InitSpotClients()
@@ -464,7 +509,7 @@ namespace CryptoClients.Net
                 XT.SpotApi.SharedClient,
                 XT.CoinFuturesApi.SharedClient,
                 XT.UsdtFuturesApi.SharedClient
-            };           
+            };
         }
 
         /// <summary>
@@ -903,7 +948,7 @@ namespace CryptoClients.Net
             return GetTradeHistoryInt(request, exchanges, ct).ParallelEnumerateAsync();
         }
 
-        private IEnumerable<Task<ExchangeWebResult<IEnumerable<SharedTrade>>>> GetTradeHistoryInt(GetTradeHistoryRequest request, IEnumerable<string>? exchanges,CancellationToken ct)
+        private IEnumerable<Task<ExchangeWebResult<IEnumerable<SharedTrade>>>> GetTradeHistoryInt(GetTradeHistoryRequest request, IEnumerable<string>? exchanges, CancellationToken ct)
         {
             var clients = GetTradeHistoryClients().Where(x => x.SupportedTradingModes.Contains(request.Symbol.TradingMode));
             if (exchanges != null)
@@ -1217,7 +1262,7 @@ namespace CryptoClients.Net
 
         private IEnumerable<Task<ExchangeWebResult<IEnumerable<SharedFuturesSymbol>>>> GetFuturesSymbolsInt(GetSymbolsRequest request, IEnumerable<string>? exchanges, CancellationToken ct)
         {
-            var clients = GetFuturesSymbolClients().Where(x => request.TradingMode == null ? true: x.SupportedTradingModes.Contains(request.TradingMode.Value));
+            var clients = GetFuturesSymbolClients().Where(x => request.TradingMode == null ? true : x.SupportedTradingModes.Contains(request.TradingMode.Value));
             if (exchanges != null)
                 clients = clients.Where(c => exchanges.Contains(c.Exchange));
 
